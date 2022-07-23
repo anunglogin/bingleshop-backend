@@ -1,0 +1,32 @@
+{
+  "name": "backend-bingleshop",
+  "version": "1.0.0",
+  "description": "Challenge for Gold Level Bootcamp Binar Academy, Simple CRUD apps using expressJS and PostgresSQL",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon index",
+    "start": "node index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anung/bingleshop-backend.git"
+  },
+  "author": "Akhmad Maknur",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anung/bingleshop-backend/issues"
+  },
+  "homepage": "https://github.com/anung/bingleshop-backend#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-group-routes": "^1.1.0",
+    "pg": "^8.7.3",
+    "sequelize": "^6.21.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19",
+    "sequelize-cli": "^6.4.1"
+  }
+}

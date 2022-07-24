@@ -25,7 +25,7 @@ module.exports = {
         allowNull: false
       },
       address: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       phone: {
         type: Sequelize.STRING

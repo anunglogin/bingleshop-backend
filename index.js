@@ -2,23 +2,16 @@ require('dotenv').config();
 require('express-group-routes');
 
 const express = require('express');
+const routes = require('./routes');
 const app = express();
 const port = process.env.NODE_PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(routes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-});
-
-/**
- * @description - This is variable routes for the application.
- */
-const auth = require('./routes/auth');
-
-app.group('/api/v1/', (router) => {
-  router.use('/auth', auth);
 });
 
 /**

@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { Users, sequelize } = require('../database/models');
 
-const signup = async (req, res) => {
+const signup = async (req, res, next) => {
   try {
     await sequelize.transaction(async (transaction) => {
       const insert = await Users.create(req.body, { transaction });
@@ -26,13 +26,11 @@ const signup = async (req, res) => {
       });
     });
   } catch (error) {
-    return res.status(400).json({
-      message: error.message
-    });
+    next(error);
   }
 };
 
-const signin = async (req, res) => {
+const signin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -74,9 +72,7 @@ const signin = async (req, res) => {
       }
     });
   } catch (error) {
-    return res.status(400).json({
-      message: error.message
-    });
+    next(error);
   }
 };
 

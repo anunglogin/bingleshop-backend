@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { Users, sequelize } = require('../database/models');
+const { Users, sequelize } = require('../models');
 const logger = require('../middlewares/logger');
 
 const signup = async (req, res, next) => {

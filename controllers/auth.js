@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { Users, sequelize } = require('../database/models');
+const logger = require('../middlewares/logger');
 
 const signup = async (req, res, next) => {
   try {
@@ -26,6 +27,7 @@ const signup = async (req, res, next) => {
       });
     });
   } catch (error) {
+    logger('signup').error(error);
     next(error);
   }
 };
@@ -72,6 +74,7 @@ const signin = async (req, res, next) => {
       }
     });
   } catch (error) {
+    logger('signin').error(error);
     next(error);
   }
 };

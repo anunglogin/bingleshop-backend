@@ -8,7 +8,7 @@ const notFound = (req, res, next) => {
 };
 
 const error = (err, req, res, next) => {
-  logger('error').error(err);
+  logger('error').error(err.message);
   return res.status(err.code || 500).json({
     message: err.message || 'Internal Server Error'
   });

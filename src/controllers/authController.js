@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { Users, sequelize } = require('../models');
+const { users, sequelize } = require('../models');
 const logger = require('../middlewares/logger');
 const { isTokenValid, refreshToken } = require('../middlewares/verifyToken');
 const jwt = require('jsonwebtoken');
@@ -7,10 +7,10 @@ const jwt = require('jsonwebtoken');
 const signup = async (req, res, next) => {
   try {
     const email = req.body.email;
-    const findEmail = await Users.findOne({ where: { email: email } });
+    const findEmail = await users.findOne({ where: { email: email } });
     if (!findEmail) {
       await sequelize.transaction(async (transaction) => {
-        const insert = await Users.create(req.body, { transaction });
+        const insert = await users.create(req.body, { transaction });
         if (insert) {
           return res.status(201).json({
             message: 'User created successfully',
@@ -30,7 +30,7 @@ const signup = async (req, res, next) => {
         });
       });
     } else {
-      return res.status(400).json({
+      return res.status(409).json({
         message: 'Email already exists'
       });
     }
@@ -49,7 +49,7 @@ const signin = async (req, res, next) => {
       });
     }
 
-    const user = await Users.findOne({
+    const user = await users.findOne({
       where: {
         email: req.body.email
       }

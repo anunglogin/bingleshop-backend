@@ -3,7 +3,7 @@ const saltRounds = 10;
 
 module.exports = (sequelize, DataTypes) => {
   const Users = sequelize.define(
-    'Users',
+    'users',
     {
       id: {
         type: DataTypes.UUID,
@@ -32,18 +32,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       phone: {
         type: DataTypes.STRING
-      },
-      createdAt: {
-        allowNull: false,
-        type: DataTypes.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: DataTypes.DATE
       }
     },
     {
-      tableName: 'Users',
+      tableName: 'users',
+      timestamps: true,
+      paranoid: true,
+      freezeTableName: true,
       hooks: {
         beforeCreate: async (user) => {
           if (user.password) {

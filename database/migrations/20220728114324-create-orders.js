@@ -1,36 +1,43 @@
 'use strict';
+
 const uuid = require('uuid');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('orders', {
       id: {
-        allowNull: false,
-        primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: uuid.v4()
+        defaultValue: uuid.v4(),
+        primaryKey: true,
+        allowNull: false
       },
-      email: {
+      userId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+      orderNo: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      password: {
+      orderAmount: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false
+      },
+      orderAddress: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      firstName: {
-        type: Sequelize.STRING,
+      orderStatus: {
+        type: Sequelize.ENUM,
+        values: ['pending', 'processing', 'completed', 'cancelled'],
+        defaultValue: 'pending',
         allowNull: false
-      },
-      lastName: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      address: {
-        type: Sequelize.TEXT
-      },
-      phone: {
-        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -46,7 +53,8 @@ module.exports = {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('users');
+    await queryInterface.dropTable('orders');
   }
 };

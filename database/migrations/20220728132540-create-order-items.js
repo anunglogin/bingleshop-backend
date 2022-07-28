@@ -1,39 +1,36 @@
 'use strict';
-const uuid = require('uuid');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('items', {
+    await queryInterface.createTable('order_items', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: uuid.v4(),
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
         allowNull: false
       },
-      userId: {
+      orderId: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'users',
+          model: 'orders',
           key: 'id'
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false
+      itemId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'items',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: false
-      },
-      sku: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      price: {
-        type: Sequelize.DECIMAL(10, 2),
+      quantity: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
       createdAt: {
@@ -52,6 +49,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('items');
+    await queryInterface.dropTable('order_items');
   }
 };

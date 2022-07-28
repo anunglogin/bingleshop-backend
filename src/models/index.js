@@ -43,4 +43,50 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+// begin association for users and items
+db.items.belongsTo(db.users, {
+  foreignKey: 'userId',
+  as: 'user'
+});
+
+db.users.hasMany(db.items, {
+  foreignKey: 'userId',
+  as: 'itemsUsers'
+});
+// end association for users and items
+
+// begin association for users and orders
+db.orders.belongsTo(db.users, {
+  foreignKey: 'userId',
+  as: 'order'
+});
+
+db.users.hasMany(db.orders, {
+  foreignKey: 'userId',
+  as: 'ordersUsers'
+});
+// end association for users and orders
+
+//begin association for orders and order items
+db.orderItems.belongsTo(db.orders, {
+  foreignKey: 'orderId',
+  as: 'orderItem'
+});
+db.orders.hasMany(db.orderItems, {
+  foreignKey: 'orderId',
+  as: 'orderOrdersItems'
+});
+//end association for orders and order items
+
+//begin association for order items and items
+db.orderItems.belongsTo(db.items, {
+  foreignKey: 'itemId',
+  as: 'orderItems'
+});
+db.items.hasMany(db.orderItems, {
+  foreignKey: 'itemId',
+  as: 'itemOrdersItems'
+});
+//end association for order items and items
+
 module.exports = db;

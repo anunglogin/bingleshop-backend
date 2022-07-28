@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Items = sequelize.define(
-    'items',
+  const Orders = sequelize.define(
+    'orders',
     {
       id: {
         type: DataTypes.UUID,
@@ -18,30 +18,30 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      name: {
+      orderNo: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      description: {
-        type: DataTypes.TEXT,
-        allowNull: false
-      },
-      sku: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
-      price: {
+      orderAmount: {
         type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+      },
+      orderAddress: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      orderStatus: {
+        type: DataTypes.STRING,
         allowNull: false
       }
     },
     {
-      tableName: 'items',
+      tableName: 'orders',
       timestamps: true,
       paranoid: true,
       freezeTableName: true
     }
   );
 
-  return Items;
+  return Orders;
 };

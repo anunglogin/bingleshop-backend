@@ -1,7 +1,11 @@
-const { items } = require('../models');
+const { items, users } = require('../models');
 
 const getAllItems = async (req, res, next) => {
-  const allItems = await items.findAll();
+  const allItems = await items.findAll({
+    include: [
+      { model: users, as: 'user', attributes: ['firstName', 'lastName'] }
+    ]
+  });
   if (allItems.length > 0) {
     return res.status(200).json({
       status: true,
@@ -16,7 +20,11 @@ const getAllItems = async (req, res, next) => {
 
 const getItemById = async (req, res, next) => {
   const id = req.params.id;
-  const oneItem = await items.findByPk(id);
+  const oneItem = await items.findByPk(id, {
+    include: [
+      { model: users, as: 'user', attributes: ['firstName', 'lastName'] }
+    ]
+  });
   if (oneItem) {
     return res.status(200).json({
       status: true,

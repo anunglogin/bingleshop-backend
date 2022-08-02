@@ -2,9 +2,12 @@ require('dotenv').config();
 require('express-group-routes');
 
 const express = require('express');
-const routes = require('./src/routes');
-const { notFound, error } = require('./src/middlewares/errorHandling');
-const logger = require('./src/middlewares/logger');
+const routes = require('./src/routes/index.routes');
+const {
+  notFound,
+  error,
+} = require('./src/middlewares/errorHandling.middleware');
+const logger = require('./src/middlewares/logger.middleware');
 const app = express();
 const port = process.env.NODE_PORT || 3000;
 

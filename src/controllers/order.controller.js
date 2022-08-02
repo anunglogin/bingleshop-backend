@@ -1,5 +1,5 @@
 const { orders, order_items, items } = require('../models');
-const { sequelize } = require('../models/');
+const { sequelize } = require('../models');
 
 const getAllOrders = async (req, res, next) => {
   const allOrders = await orders.findAll({
@@ -65,31 +65,30 @@ const getOrderById = async (req, res, next) => {
 
 const createOrder = async (req, res, next) => {
   try {
-    const { user_id, order_no, order_address, detail_items } = req.body;
+    const { ...createOrder } = req.body;
 
     const itemResult = [];
-    let order_amount = 0;
-    for (const result of detail_items) {
-      const { item_id, item_quantity } = result;
-      const findItem = await items.findByPk(item_id);
+    let orderAmount = 0;
+    for (const result of req.body.detailItem) {
+      const { itemId, itemQuantity } = result;
+      const findItem = await items.findByPk(itemId);
       if (findItem) {
         const itemData = {
-          item_id: item_id,
-          item_quantity: item_quantity,
-          item_price: findItem.price * item_quantity,
+          itemId: itemId,
+          itemQuantity: itemQuantity,
+          itemPrice: findItem.price * itemQuantity,
         };
         itemResult.push(itemData);
-        order_amount += findItem.price * item_quantity;
+        orderAmount += findItem.price * itemQuantity;
       }
     }
 
     await sequelize.transaction(async (t) => {
       insertOrder = await orders.create(
         {
-          userId: user_id,
-          orderNo: order_no,
-          orderAmount: order_amount,
-          orderAddress: order_address,
+          ...createOrder,
+          userId: req.userId,
+          orderAmount: orderAmount,
           orderStatus: 'pending',
         },
         {
@@ -101,9 +100,9 @@ const createOrder = async (req, res, next) => {
         itemResult.map((item) => {
           return {
             orderId: insertOrder.id,
-            itemId: item.item_id,
-            quantity: item.item_quantity,
-            price: item.item_price,
+            itemId: item.itemId,
+            quantity: item.itemQuantity,
+            price: item.itemPrice,
           };
         }),
         {
@@ -126,7 +125,7 @@ const updateOrder = async (req, res, next) => {
     const findOrder = await orders.findByPk(req.params.id);
     if (findOrder) {
       let updateOrder = false;
-      if (findOrder.userId !== req.body.userId) {
+      if (findOrder.userId !== req.userId) {
         throw {
           code: 401,
           message: 'You are not authorized to update this order',
@@ -161,6 +160,81 @@ const updateOrder = async (req, res, next) => {
   }
 };
 
+const updateOrderItem = async (req, res, next) => {
+  try {
+    const findOrder = await order_items.findByPk(req.params.id, {
+      attributes: ['id', 'orderId', 'itemId', 'quantity', 'price'],
+      include: [
+        {
+          model: orders,
+          as: 'orderItem',
+          required: true,
+          attributes: ['id', 'userId'],
+        },
+        {
+          model: items,
+          as: 'itemDetail',
+          required: true,
+          attributes: ['price'],
+        },
+      ],
+    });
+
+    if (findOrder) {
+      if (findOrder.orderItem.userId !== req.userId) {
+        throw {
+          code: 401,
+          message: 'You are not authorized to update this order',
+        };
+      }
+      const price = findOrder.itemDetail.price * req.body.itemQuantity;
+
+      const { ...updateOrderItem } = req.body;
+      const update = await findOrder.update({
+        ...updateOrderItem,
+        price: price,
+      });
+      if (update) {
+        const summaryAmount = await order_items.findAll({
+          attributes: [
+            [sequelize.fn('sum', sequelize.col('price')), 'totalAmount'],
+          ],
+          where: {
+            orderId: findOrder.orderId,
+          },
+        });
+
+        orders.update(
+          {
+            orderAmount: summaryAmount[0].dataValues.totalAmount,
+          },
+          {
+            where: {
+              id: findOrder.orderId,
+            },
+          }
+        );
+
+        return res.status(200).json({
+          status: true,
+          message: 'Order item updated successfully',
+          data: req.body,
+        });
+      }
+      return res.status(400).json({
+        status: false,
+        message: 'Order item not updated',
+      });
+    }
+    return res.status(404).json({
+      status: false,
+      message: 'Order item not found',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteOrder = async (req, res, next) => {
   const findOrder = await orders.findByPk(req.params.id);
   if (findOrder) {
@@ -183,5 +257,6 @@ module.exports = {
   getOrderById,
   createOrder,
   updateOrder,
+  updateOrderItem,
   deleteOrder,
 };

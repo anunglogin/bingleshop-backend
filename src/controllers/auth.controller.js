@@ -1,7 +1,10 @@
 const bcrypt = require('bcrypt');
 const { users, sequelize } = require('../models');
-const logger = require('../middlewares/logger');
-const { isTokenValid, refreshToken } = require('../middlewares/verifyToken');
+const logger = require('../middlewares/logger.middleware');
+const {
+  isTokenValid,
+  refreshToken,
+} = require('../middlewares/verifyToken.middleware');
 const jwt = require('jsonwebtoken');
 
 const signup = async (req, res, next) => {
@@ -21,17 +24,17 @@ const signup = async (req, res, next) => {
               lastName: insert.lastName,
               address: insert.address,
               phone: insert.phone,
-              createdAt: insert.createdAt
-            }
+              createdAt: insert.createdAt,
+            },
           });
         }
         return res.status(400).json({
-          message: 'User not created'
+          message: 'User not created',
         });
       });
     } else {
       return res.status(409).json({
-        message: 'Email already exists'
+        message: 'Email already exists',
       });
     }
   } catch (error) {
@@ -45,18 +48,18 @@ const signin = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
-        message: 'Email and password are required'
+        message: 'Email and password are required',
       });
     }
 
     const user = await users.findOne({
       where: {
-        email: req.body.email
-      }
+        email: req.body.email,
+      },
     });
     if (!user) {
       return res.status(400).json({
-        message: 'User not found'
+        message: 'User not found',
       });
     }
 
@@ -67,17 +70,25 @@ const signin = async (req, res, next) => {
 
     if (!passwordValid) {
       return res.status(400).json({
-        message: 'Password is incorrect'
+        message: 'Password is incorrect',
       });
     }
 
-    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: '2m'
-    });
+    const token = jwt.sign(
+      { email: user.email, userId: user.id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '2m',
+      }
+    );
 
-    const refresh = jwt.sign({ email: user.email }, process.env.JWT_REFRESH, {
-      expiresIn: '10m'
-    });
+    const refresh = jwt.sign(
+      { email: user.email, userId: user.id },
+      process.env.JWT_REFRESH,
+      {
+        expiresIn: '60m',
+      }
+    );
 
     return res.status(200).json({
       message: 'User signed in successfully',
@@ -87,10 +98,10 @@ const signin = async (req, res, next) => {
         firstName: user.firstName,
         lastName: user.lastName,
         address: user.address,
-        phone: user.phone
+        phone: user.phone,
       },
       token: token,
-      refreshToken: refresh
+      refreshToken: refresh,
     });
   } catch (error) {
     logger('signin').error(error);
@@ -103,22 +114,26 @@ const refreshAuth = async (req, res, next) => {
   const isTokenValid = refreshToken(email, token);
   if (!isTokenValid) {
     return res.status(401).json({
-      message: 'Invalid token'
+      message: 'Invalid token',
     });
   }
 
-  const accessToken = jwt.sign({ email: email }, process.env.JWT_SECRET, {
-    expiresIn: '2m'
-  });
+  const accessToken = jwt.sign(
+    { email: email, userId: isTokenValid.userId },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '2m',
+    }
+  );
 
   return res.status(200).json({
     message: 'Token refreshed',
-    accessToken: accessToken
+    accessToken: accessToken,
   });
 };
 
 module.exports = {
   signup,
   signin,
-  refreshAuth
+  refreshAuth,
 };

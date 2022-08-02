@@ -5,7 +5,7 @@ const isTokenValid = (req, res, next) => {
     let token = req.get('authorization');
     if (!token || token === 'undefined') {
       return res.status(401).json({
-        message: 'No token provided'
+        message: 'No token provided',
       });
     }
 
@@ -13,6 +13,7 @@ const isTokenValid = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.email = decoded.email;
+    req.userId = decoded.userId;
     next();
   } catch (error) {
     next(error);
@@ -22,7 +23,10 @@ const isTokenValid = (req, res, next) => {
 const refreshToken = (email, token) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH);
-    return decoded.email === email;
+    return {
+      email: decoded.email,
+      userId: decoded.userId,
+    };
   } catch (error) {
     return false;
   }

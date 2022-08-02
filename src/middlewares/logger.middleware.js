@@ -13,7 +13,7 @@ module.exports = (service) =>
     transports: [
       new winston.transports.File({
         filename: 'logs/error.log',
-        level: 'error'
-      })
-    ]
+        level: 'error',
+      }),
+    ],
   });
